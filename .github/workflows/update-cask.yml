@@ -1,0 +1,38 @@
+name: Update Cask
+
+on:
+  repository_dispatch:
+    types: [update-cask]
+
+jobs:
+  update:
+    runs-on: macos-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Download DMG and compute SHA256
+        env:
+          VERSION: ${{ github.event.client_payload.version }}
+        run: |
+          URL="https://releases.eldrin.io/releases/Eldrin-${VERSION}-mac-arm64.dmg"
+          echo "Downloading $URL"
+          curl -fSL -o Eldrin.dmg "$URL"
+          SHA=$(shasum -a 256 Eldrin.dmg | awk '{print $1}')
+          echo "SHA256=$SHA" >> "$GITHUB_ENV"
+          echo "VERSION=$VERSION" >> "$GITHUB_ENV"
+          rm Eldrin.dmg
+
+      - name: Update cask formula
+        run: |
+          sed -i '' "s/version \".*\"/version \"${VERSION}\"/" Casks/eldrin.rb
+          sed -i '' "s/sha256 \".*\"/sha256 \"${SHA256}\"/" Casks/eldrin.rb
+          cat Casks/eldrin.rb
+
+      - name: Commit and push
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git add Casks/eldrin.rb
+          git diff --cached --quiet && echo "No changes" && exit 0
+          git commit -m "Update Eldrin to ${VERSION}"
+          git push
