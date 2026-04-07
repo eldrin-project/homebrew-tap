@@ -1,6 +1,6 @@
 cask "eldrin" do
-  version "0.2.16"
-  sha256 "d12b21d6b38c5fc510c148097e8cc2ee60549f877177cdc0bc06693fb66a6942"
+  version "0.2.17"
+  sha256 "abf45ba26f636992090fa45498577363e0ae2d07e0e660d812678806b12c46d7"
 
   url "https://releases.eldrin.io/releases/Eldrin-#{version}-mac-arm64.dmg"
   name "Eldrin"
